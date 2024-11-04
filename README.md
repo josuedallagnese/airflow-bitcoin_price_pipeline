@@ -1,4 +1,8 @@
-# Configuração ambiente
+# Airflow Bitcoin Price Pipeline
+
+Dag no airflow que salva em banco de dados as cotações atualizadas para bitcoin.
+
+## Configuração ambiente
 
 -   Instalar pyenv:
     
@@ -9,7 +13,7 @@
     > pyenv install 3.10.11
     > pyenv global 3.10.11
 
-# Ambiente local de desenvolvimento
+## Ambiente local de desenvolvimento
 
 No diretório src
 
@@ -29,7 +33,7 @@ No diretório src
     > pip install -r requirements.txt
 
 
-# Ambiente docker
+## Ambiente docker
 
 -   Criar ambiente
 
