@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: bitcoin_data
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    network_mode: host
+
+  airflow:
+    build: .
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      _AIRFLOW_DB_MIGRATE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: airflow
+      _AIRFLOW_WWW_USER_PASSWORD: airflow
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+      AIRFLOW__CORE__TEST_CONNECTION: 'Enabled'
+    network_mode: host
+    command: 'standalone'
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  script-runner:
+    image: python:3.10-slim
+    depends_on:
+      airflow:
+        condition: service_healthy
+    network_mode: host
+    volumes:
+      - ./setup.py:/scripts/setup.py
+    working_dir: /scripts
+    command: >
+      sh -c "pip install requests && python setup.py"
